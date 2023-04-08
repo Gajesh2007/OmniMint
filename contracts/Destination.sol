@@ -152,7 +152,7 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
         bytes memory _srcAddress, 
         uint _nonce, 
         address _token, 
-        uint amountLD, 
+        uint _amountLD, 
         bytes memory _payload
     ) external payable {
         require(_token == address(0), "sgReceive: only native token supported");
@@ -168,7 +168,7 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
         uint256 _amountToMint = _amountLD.div(price);
 
         if (totalSupply().add(_amountToMint) <= MAX_NFTS) {
-            payable(_depositor).transfer(amountLD);
+            payable(_depositor).transfer(_amountLD);
         } else {
             for(uint i = 0; i < amount; i++) {
                 uint mintIndex = totalSupply();
