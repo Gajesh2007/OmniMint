@@ -1,3 +1,3 @@
-# LayerZero Template
+# OmniMint
 
-TBD Description
+Mint NFTs from Any Chain
