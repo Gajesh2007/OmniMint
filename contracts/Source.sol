@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity ^0.8.9;
 
 import "./lzApp/NonblockingLzApp.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -7,8 +7,8 @@ import "../node_modules/@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 interface WETH {
-    function deposit() public payable;
-    function withdraw(uint256 wad) public;
+    function deposit() external payable;
+    function withdraw(uint256 wad) external;
     function transferFrom(
         address from,
         address to,
@@ -36,7 +36,7 @@ contract Source is NonblockingLzApp {
     constructor(
         address _lzEndpoint,
         uint16 _dstChainId,
-        uint256 _weth
+        address _weth
     ) NonblockingLzApp(_lzEndpoint) {
         dstChainId = _dstChainId;
         weth = WETH(_weth);
@@ -55,7 +55,7 @@ contract Source is NonblockingLzApp {
         _lzSend(
             dstChainId, 
             data, 
-            payable(_user), 
+            payable(msg.sender), 
             address(0x0), 
             bytes(""),
             msg.value
@@ -73,7 +73,7 @@ contract Source is NonblockingLzApp {
         _lzSend(
             dstChainId, 
             data, 
-            payable(_user), 
+            payable(msg.sender), 
             address(0x0), 
             bytes(""),
             _fee
@@ -97,4 +97,6 @@ contract Source is NonblockingLzApp {
 
         payable(_user).transfer(_amountToSend);
     }
+
+    receive() external payable {}
 }

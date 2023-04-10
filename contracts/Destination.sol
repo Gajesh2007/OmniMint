@@ -8,6 +8,18 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../node_modules/@openzeppelin/contracts/utils/Strings.sol";
 
+interface WETH {
+    function deposit() external payable;
+    function withdraw(uint256 wad) external;
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+    function approve(address guy, uint wad) external returns (bool);
+}
+
 contract NFTMint is NonblockingLzApp, ERC721Enumerable {
     using SafeMath for uint256;
     
@@ -35,7 +47,7 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
 
     mapping(address => SrcDetails) public srcDetails;
 
-    IERC20 public weth;
+    WETH public weth;
     // in case if the chain's native currency is ETH
     bool public ethChain;
     
@@ -50,9 +62,11 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
         address _lzEndpoint,
         string memory _name,
         string memory _symbol,
-        bool _ethChain
+        bool _ethChain,
+        address _weth
     ) NonblockingLzApp(_lzEndpoint) ERC721(_name, _symbol) {
         ethChain = _ethChain;
+        weth = WETH(_weth);
     }
 
     function withdraw() public onlyOwner {
@@ -137,6 +151,8 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
             address(this),
             price.mul(numberOfTokens)
         );
+
+        weth.withdraw(numberOfTokens);
         
         for(uint i = 0; i < numberOfTokens; i++) {
             uint mintIndex = totalSupply();
@@ -210,4 +226,6 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
             }
         }
     }
+
+    receive() external payable {}
 }
