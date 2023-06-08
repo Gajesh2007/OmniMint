@@ -7,7 +7,19 @@
 const hre = require("hardhat");
 
 async function main() {
-  
+
+  // Optimism
+  const Destination = await hre.ethers.getContractFactory("NFTMint");
+  const destination = await Destination.deploy(
+    "",
+    "OmniMint",
+    "oMint",
+    true,
+    // random weth i found on optimism explorer
+    "0x494396f42ec90e4eb815d8fbbb3b5fdf016970b2"
+  );
+
+  await destination.deployed();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

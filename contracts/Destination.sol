@@ -141,7 +141,7 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
     }
     
     
-    function mint(uint numberOfTokens) public {
+    function mintViaWeth(uint numberOfTokens) public {
         require(saleIsActive, "Sale must be active to mint NFT");
         require(numberOfTokens > 0 && numberOfTokens <= maxPurchase, "Can only mint 5 tokens at a time");
         require(totalSupply().add(numberOfTokens) <= MAX_NFTS, "Purchase would exceed max supply of NFTs");
@@ -162,11 +162,12 @@ contract NFTMint is NonblockingLzApp, ERC721Enumerable {
         }
     }
 
-    function mintViaEth(uint numberOfTokens) public payable {
+    function mint(uint numberOfTokens) public payable {
         require(saleIsActive, "Sale must be active to mint NFT");
         require(numberOfTokens > 0 && numberOfTokens <= maxPurchase, "Can only mint 5 tokens at a time");
         require(totalSupply().add(numberOfTokens) <= MAX_NFTS, "Purchase would exceed max supply of NFTs");
         require(numberOfTokens.mul(price) == msg.value, "not enough eth to mint");
+        require(ethChain == true, "it should a eth chain");
         
         for(uint i = 0; i < numberOfTokens; i++) {
             uint mintIndex = totalSupply();

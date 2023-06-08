@@ -33,16 +33,38 @@ contract Source is NonblockingLzApp {
     // WETH
     WETH public weth;
 
+    bool public ETH_NATIVE;
+
     constructor(
         address _lzEndpoint,
         uint16 _dstChainId,
-        address _weth
+        address _weth,
+        bool _ethNative
     ) NonblockingLzApp(_lzEndpoint) {
         dstChainId = _dstChainId;
         weth = WETH(_weth);
+        ETH_NATIVE = _ethNative;
     }
 
-    function omniMint(uint256 _amount) public payable {
+    function mint(uint256 _amount, uint256 _fee) public payable {
+        require(_amount > 0 && _amount <= maxPurchase, "Can only mint 5 NFTs at a time");
+        uint256 cost = _amount.mul(price);
+        require(msg.value > (cost + _fee), "eth is not enough");
+        require(ETH_NATIVE == true, "it should a eth chain");
+        
+        bytes memory data = abi.encode(msg.sender, _amount);
+        
+        _lzSend(
+            dstChainId, 
+            data, 
+            payable(msg.sender), 
+            address(0x0), 
+            bytes(""),
+            _fee
+        );
+    }
+
+    function mintViaWeth(uint256 _amount) public payable {
         require(_amount > 0 && _amount <= maxPurchase, "Can only mint 5 NFTs at a time");
         uint256 cost = _amount.mul(price);
         require(msg.value > 0, "stargate requires fee to pay crosschain message");
@@ -59,24 +81,6 @@ contract Source is NonblockingLzApp {
             address(0x0), 
             bytes(""),
             msg.value
-        );
-    }
-
-
-    function omniMintNative(uint256 _amount, uint256 _fee) public payable {
-        require(_amount > 0 && _amount <= maxPurchase, "Can only mint 5 NFTs at a time");
-        uint256 cost = _amount.mul(price);
-        require(msg.value > (cost + _fee), "eth is not enough");
-        
-        bytes memory data = abi.encode(msg.sender, _amount);
-        
-        _lzSend(
-            dstChainId, 
-            data, 
-            payable(msg.sender), 
-            address(0x0), 
-            bytes(""),
-            _fee
         );
     }
 
